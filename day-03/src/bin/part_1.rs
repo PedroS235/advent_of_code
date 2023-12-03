@@ -64,6 +64,14 @@ fn part_1(input: &str) -> u32 {
                 current_number.number = String::new();
                 current_number.adjency_symbols = 0;
             }
+
+            if col == line.len() - 1 {
+                if current_number.adjency_symbols > 0 {
+                    parts.push(current_number.clone());
+                }
+                current_number.number = String::new();
+                current_number.adjency_symbols = 0;
+            }
         }
     }
 
