@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 fn main() {
     let input = include_str!("./input.txt");
     let output = part_1(input);
@@ -8,7 +6,7 @@ fn main() {
 
 #[derive(Debug, Clone)]
 struct Almanac {
-    seeds: Vec<u32>,
+    seeds: Vec<u64>,
     seed_to_soil: Vec<MapDescription>,
     soil_to_fert: Vec<MapDescription>,
     fert_to_water: Vec<MapDescription>,
@@ -36,7 +34,7 @@ impl Almanac {
         let mut lines = input.lines();
         self.seeds = parse_seeds(lines.nth(0).unwrap());
 
-        let mut current_map: u32 = 0;
+        let mut current_map: u64 = 0;
         let mut maps: Vec<&str> = Vec::new();
 
         for (i, line) in lines.enumerate() {
@@ -74,33 +72,25 @@ impl Almanac {
 #[derive(Debug, Clone)]
 
 struct MapDescription {
-    source_start: u32,
-    target_start: u32,
-    offset: u32,
+    source_start: u64,
+    target_start: u64,
+    offset: u64,
 }
 
-impl MapDescription {
-    fn gen_ranges(&self) -> (Vec<u32>, Vec<u32>) {
-        let source: Vec<u32> = (self.source_start..(self.source_start + self.offset)).collect();
-        let target: Vec<u32> = (self.target_start..(self.target_start + self.offset)).collect();
-        (source, target)
-    }
-}
-
-fn parse_seeds(line: &str) -> Vec<u32> {
+fn parse_seeds(line: &str) -> Vec<u64> {
     line.split(": ")
         .nth(1)
         .unwrap()
         .split(' ')
-        .map(|n| n.parse::<u32>().unwrap())
+        .map(|n| n.parse::<u64>().unwrap())
         .collect()
 }
 
 fn parse_map_description(line: &str) -> MapDescription {
     let desc = line
         .split(' ')
-        .map(|n| n.parse::<u32>().expect("A number"))
-        .collect::<Vec<u32>>();
+        .map(|n| n.parse::<u64>().expect("A number"))
+        .collect::<Vec<u64>>();
 
     MapDescription {
         source_start: (*desc.get(1).unwrap()),
@@ -115,68 +105,58 @@ fn parse_map(maps: Vec<&str>) -> Vec<MapDescription> {
         .collect()
 }
 
-fn part_1(input: &str) -> u32 {
+fn part_1(input: &str) -> u64 {
     let mut almanac = Almanac::new();
     almanac.create(input);
     println!("Finished creating almanac");
 
-    let mut locations: Vec<u32> = Vec::new();
+    let mut locations: Vec<u64> = Vec::new();
 
     for seed in almanac.seeds {
         let mut next = seed;
         for map in almanac.seed_to_soil.clone() {
             if next >= map.source_start && next < map.source_start + map.offset {
-                dbg!(map.clone());
                 next = map.target_start + next - map.source_start;
                 break;
             }
         }
-        dbg!(next);
         for map in almanac.soil_to_fert.clone() {
             if next >= map.source_start && next < map.source_start + map.offset {
-                dbg!(map.clone());
                 next = map.target_start + next - map.source_start;
+                break;
             }
         }
-        dbg!(next);
         for map in almanac.fert_to_water.clone() {
             if next >= map.source_start && next < map.source_start + map.offset {
-                dbg!(map.clone());
                 next = map.target_start + next - map.source_start;
+                break;
             }
         }
-        dbg!(next);
         for map in almanac.water_to_light.clone() {
             if next >= map.source_start && next < map.source_start + map.offset {
-                dbg!(map.clone());
                 next = map.target_start + next - map.source_start;
+                break;
             }
         }
-        dbg!(next);
         for map in almanac.light_to_temp.clone() {
             if next >= map.source_start && next < map.source_start + map.offset {
-                dbg!(map.clone());
                 next = map.target_start + next - map.source_start;
+                break;
             }
         }
-        dbg!(next);
         for map in almanac.temp_to_hum.clone() {
             if next >= map.source_start && next < map.source_start + map.offset {
-                dbg!(map.clone());
                 next = map.target_start + next - map.source_start;
+                break;
             }
         }
-        dbg!(next);
         for map in almanac.hum_to_loc.clone() {
             if next >= map.source_start && next < map.source_start + map.offset {
-                dbg!(map.clone());
                 next = map.target_start + next - map.source_start;
+                break;
             }
         }
-        dbg!(next);
-
         locations.push(next);
-        break;
     }
 
     let min = locations.iter().min().unwrap();
