@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::collections::HashMap;
 
 fn main() {
@@ -24,8 +25,29 @@ struct MapDescription {
     offset: u32,
 }
 
+impl MapDescription {
+    fn gen_ranges(&self) -> (Vec<u32>, Vec<u32>) {
+        let source: Vec<u32> = (self.source_start..self.offset).collect();
+        let target: Vec<u32> = (self.target_start..self.offset).collect();
+        (source, target)
+    }
+
+    fn new() -> Self {
+        MapDescription {
+            source_start: 0,
+            target_start: 0,
+            offset: 0,
+        }
+    }
+}
+
 fn parse_seeds(line: &str) -> Vec<u32> {
-    line.split(' ').map(|n| n.parse::<u32>().unwrap()).collect()
+    line.split(": ")
+        .nth(1)
+        .unwrap()
+        .split(' ')
+        .map(|n| n.parse::<u32>().unwrap())
+        .collect()
 }
 
 fn parse_map_description(line: &str) -> MapDescription {
@@ -40,10 +62,78 @@ fn parse_map_description(line: &str) -> MapDescription {
     }
 }
 
+fn parse_map(maps: Vec<&str>) -> HashMap<u32, u32> {
+    let mut hash_map: HashMap<u32, u32> = HashMap::new();
+    for line in maps {
+        let map_desc = parse_map_description(line);
+        let (source, target) = map_desc.gen_ranges();
+        let mut target = target.into_iter();
+
+        for (i, key) in source.into_iter().enumerate() {
+            hash_map.insert(key, target.nth(i).unwrap());
+        }
+    }
+    hash_map
+}
+
 fn part_1(input: &str) -> u32 {
-    // Convert input to a matrix of chars
-    for line in input.lines() {
-        println!("{}", line);
+    let mut lines = input.lines();
+    let seeds = parse_seeds(lines.nth(0).unwrap());
+
+    let mut current_map: u32 = 0;
+    let mut maps: Vec<&str> = Vec::new();
+
+    for (i, line) in lines.enumerate() {
+        if i < 1 {
+            continue;
+        }
+        println!("{line}");
+
+        // Beginning of map
+        if line.contains("map") {
+            maps = Vec::new();
+            continue;
+        }
+
+        // End of map
+        if line == "" {
+            current_map += 1;
+
+            match current_map {
+                0 => {
+                    let map = parse_map(maps.clone());
+                }
+
+                1 => {
+                    let map = parse_map(maps.clone());
+                }
+                2 => {
+                    let map = parse_map(maps.clone());
+                }
+                3 => {
+                    let map = parse_map(maps.clone());
+                }
+                4 => {
+                    let map = parse_map(maps.clone());
+                }
+                5 => {
+                    let map = parse_map(maps.clone());
+                }
+                6 => {
+                    let map = parse_map(maps.clone());
+                }
+                7 => {
+                    let map = parse_map(maps.clone());
+                }
+
+                _ => {
+                    println!("Other")
+                }
+            }
+
+            continue;
+        }
+        maps.push(line);
     }
 
     0
