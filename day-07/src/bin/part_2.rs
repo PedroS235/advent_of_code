@@ -117,6 +117,7 @@ impl Hand {
         };
 
         hand.card_type();
+        hand.find_best_type();
 
         hand
     }
@@ -150,7 +151,39 @@ impl Hand {
     }
 
     fn find_best_type(&mut self) {
-        let n_j = self.cards_hash.keys().filter(|&k| *k == 'J').count();
+        let n_j: u32 = *self.cards_hash.get(&'J').unwrap_or(&0);
+
+        if n_j < 1 {
+            return;
+        }
+
+        let mut new_card = self.clone();
+        let mut best_type = new_card.type_;
+
+        for i in 0..n_j {
+            for letter in self.cards_hash.keys().filter(|&k| *k != 'J') {
+                new_card.cards =
+                    self.cards
+                        .replacen("J", letter.to_string().as_str(), (i + 1) as usize);
+
+                let mut hash = BTreeMap::new();
+                for card in new_card.cards.chars() {
+                    let count = hash.entry(card).or_insert(0);
+                    *count += 1;
+                }
+
+                new_card.cards_hash = hash;
+
+                new_card.card_type();
+
+                // compare types
+                if new_card.type_ > best_type {
+                    best_type = new_card.type_;
+                }
+            }
+        }
+
+        self.type_ = best_type;
     }
 
     fn card_type(&mut self) {
@@ -215,6 +248,6 @@ KTJJT 220
 QQQJA 483
 ";
         let result = part_1(input);
-        assert_eq!(result, 6440)
+        assert_eq!(result, 5905)
     }
 }
