@@ -1,3 +1,4 @@
+use num::integer::lcm;
 use std::collections::BTreeMap;
 
 fn main() {
@@ -24,7 +25,7 @@ fn parse_maps(input: Vec<&str>) -> BTreeMap<String, (String, String)> {
         })
 }
 
-fn part_2(input: &str) -> u32 {
+fn part_2(input: &str) -> usize {
     let mut network = input.lines();
     let instructions: Vec<char> = network.next().unwrap().chars().collect();
 
@@ -33,20 +34,19 @@ fn part_2(input: &str) -> u32 {
 
     let maps = parse_maps(network.collect());
 
-    let mut curr_instruction = 0;
-
-    let mut steps = 0;
-
     let start_points: Vec<&String> = maps.keys().filter(|k| k.ends_with('A')).collect();
+    let mut total_steps = 1;
 
     for start_point in start_points {
         let mut reach_destination = false;
         let mut next_dest = start_point.clone();
+        let mut steps = 0;
+        let mut curr_instruction = 0;
 
         while !reach_destination {
             next_dest = match instructions[curr_instruction] {
-                'L' => maps.get(next_dest).unwrap().0.as_str(),
-                'R' => maps.get(next_dest).unwrap().1.as_str(),
+                'L' => maps.get(&next_dest).unwrap().0.clone(),
+                'R' => maps.get(&next_dest).unwrap().1.clone(),
                 value => panic!("Value {} should not exist!", value),
             };
 
@@ -57,9 +57,11 @@ fn part_2(input: &str) -> u32 {
             }
             curr_instruction = (curr_instruction + 1) % instructions.len();
         }
+
+        total_steps = lcm(steps, total_steps);
     }
 
-    steps
+    total_steps
 }
 
 #[cfg(test)]
