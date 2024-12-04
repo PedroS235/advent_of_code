@@ -22,8 +22,10 @@ func main() {
 		return
 	}
 
-	result := part2(inputLines)
-	fmt.Println("Result:", result)
+	result1 := part1(inputLines)
+	result2 := part2(inputLines)
+	fmt.Println("Result1:", result1)
+	fmt.Println("Result2:", result2)
 }
 
 func str_to_int(input []string) []int {
@@ -77,61 +79,34 @@ func part2(input []string) int {
 	for _, line := range input {
 		levels := str_to_int(strings.Fields(line))
 
-		if safe_decreasing_tolerance(levels) || safe_increasing_tolerance(levels) {
+		if safe_decreasing(levels) || safe_increasing(levels) {
+			safe++
+			continue
+		}
+		pointer := 0
+		found_safe := false
+
+		for pointer < len(levels) {
+			left := levels[:pointer]
+			right := levels[pointer+1:]
+
+			new_levels := append([]int{}, left...)
+			new_levels = append(new_levels, right...)
+
+			if safe_decreasing(new_levels) || safe_increasing(new_levels) {
+				found_safe = true
+				break
+			}
+
+			pointer++
+
+		}
+
+		if found_safe {
 			safe++
 		}
+
 	}
 
 	return safe
-}
-
-func safe_increasing_tolerance(reports []int) bool {
-	tolerance := 1
-	p1, p2 := 0, 1
-	for p2 < len(reports) {
-		diff := reports[p2] - reports[p1]
-		if diff <= 0 || diff > 3 {
-			if tolerance == 0 {
-				return false
-			}
-
-			tolerance--
-			if p1 == 0 {
-				p1++
-				p2++
-				continue
-			}
-			p2++
-			continue
-		}
-
-		p1, p2 = p2, p2+1
-	}
-	return true
-}
-
-func safe_decreasing_tolerance(reports []int) bool {
-	tolerance := 1
-	p1, p2 := 0, 1
-	for p2 < len(reports) {
-		diff := reports[p1] - reports[p2]
-		if diff <= 0 || diff > 3 {
-			if tolerance == 0 {
-				return false
-			}
-
-			tolerance--
-			if p1 == 0 {
-				p1++
-				p2++
-				continue
-			}
-
-			p2++
-			continue
-		}
-
-		p1, p2 = p2, p2+1
-	}
-	return true
 }
