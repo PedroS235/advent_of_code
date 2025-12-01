@@ -44,16 +44,17 @@ def part2(data):
     for combination in data:
         dir, n = combination
         n = int(n)
-        new_pos = dial + n if dir == "R" else dial - n
 
-        if new_pos > 99 or new_pos < 0:
-            count = abs(new_pos) // 100
-            secret += count
-
-        dial = new_pos % 100
-        #
-        # if dial == 0:
-        #     secret += 1
+        if dir == "R":
+            for _ in range(n):
+                dial = (dial + 1) % 100
+                if dial == 0:
+                    secret += 1
+        else:
+            for _ in range(n, 0, -1):
+                dial = (dial - 1) % 100
+                if dial == 0:
+                    secret += 1
 
     return str(secret)
 
