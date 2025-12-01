@@ -2,55 +2,60 @@
 
 import pathlib
 import sys
-from collections import Counter
 
 
 def parse(puzzle_input: str):
     """Parse input."""
 
-    left = []
-    right = []
-
+    combinations = []
     for line in puzzle_input.splitlines():
-        l, r = line.split("  ")
-        left.append(l)
-        right.append(r)
+        dir = line[0]
+        n = line[1:]
 
-    return left, right
+        combinations.append((dir, n))
+
+    return combinations
 
 
 def part1(data):
     """Solve part 1."""
-    left, right = data
+    secret = 0
+    dial = 50
 
-    left = list(map(int, left))
-    right = list(map(int, right))
+    for combination in data:
+        dir, n = combination
 
-    left.sort()
-    right.sort()
+        n = int(n)
+        n = n if dir == "R" else -n
 
-    distances = []
-    for l, r in zip(left, right):
-        distances.append(abs(l - r))
+        dial = (dial + n) % 100
 
-    return str(sum(distances))
+        if dial == 0:
+            secret += 1
+
+    return str(secret)
 
 
 def part2(data):
     """Solve part 2."""
-    left, right = data
+    secret = 0
+    dial = 50
 
-    left = list(map(int, left))
-    right = list(map(int, right))
+    for combination in data:
+        dir, n = combination
+        n = int(n)
+        new_pos = dial + n if dir == "R" else dial - n
 
-    r_counter = Counter(right)
+        if new_pos > 99 or new_pos < 0:
+            count = abs(new_pos) // 100
+            secret += count
 
-    score = 0
-    for v in left:
-        count = r_counter.get(v, 0)
-        score += count * v
+        dial = new_pos % 100
+        #
+        # if dial == 0:
+        #     secret += 1
 
-    return str(score)
+    return str(secret)
 
 
 def solve(puzzle_input):
