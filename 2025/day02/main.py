@@ -6,82 +6,80 @@ import sys
 
 def parse(puzzle_input: str):
     """Parse input."""
-    ids = []
+    id_ranges = []
     for id_range in puzzle_input.split(","):
-        ids.append([int(x) for x in id_range.split("-")])
+        id_ranges.append([int(x) for x in id_range.split("-")])
 
-    return ids
+    return id_ranges
 
 
-def gen_range(min_id, max_id):
-    count = min_id
+def generate_ids_in_range(min_id, max_id):
+    current_id = min_id
 
-    while count <= max_id:
-        yield str(count)
-        count += 1
+    while current_id <= max_id:
+        yield str(current_id)
+        current_id += 1
 
 
 def part1(data):
     """Solve part 1."""
-    invalid_ids = 0
+    sum_of_matching_ids = 0
 
-    for product_range in data:
-        ids = gen_range(product_range[0], product_range[1])
+    for min_id, max_id in data:
+        ids = generate_ids_in_range(min_id, max_id)
 
         for id in ids:
             if len(id) % 2 != 0:
                 continue
 
-            left, right = id[: len(id) // 2], id[len(id) // 2 :]
-            invalid_ids += int(id) if left == right else 0
+            left_half, right_half = id[: len(id) // 2], id[len(id) // 2 :]
+            sum_of_matching_ids += int(id) if left_half == right_half else 0
 
-    return str(invalid_ids)
+    return str(sum_of_matching_ids)
 
 
-def investiate_id(id: str):
+def has_repeating_pattern(id: str):
     if len(id) < 2:
         return False
 
-    end = 1
+    prefix_length = 1
 
-    head = id[0:end]
-    tail = id[end:]
+    prefix = id[0:prefix_length]
+    suffix = id[prefix_length:]
 
-    while len(head) <= len(tail) and end < len(id):
-        if repeats(head, tail):
+    while len(prefix) <= len(suffix) and prefix_length < len(id):
+        if is_repeating_pattern(prefix, suffix):
             return True
-        end += 1
-        head = id[0:end]
-        tail = id[end:]
+        prefix_length += 1
+        prefix = id[0:prefix_length]
+        suffix = id[prefix_length:]
 
     return False
 
 
-def repeats(head, tail):
-    idx = 0
-    while len(head) <= len(tail) and idx + len(head) <= len(tail):
-        cmp = tail[idx : idx + len(head)]
-        if head != cmp:
+def is_repeating_pattern(pattern, text):
+    position = 0
+    while len(pattern) <= len(text) and position + len(pattern) <= len(text):
+        segment = text[position : position + len(pattern)]
+        if pattern != segment:
             return False
-        idx += len(head)
+        position += len(pattern)
 
-    if idx + len(head) > len(tail) and idx < len(tail):
-        return False
-    return True
+    return position == len(text)
 
 
 def part2(data):
     """Solve part 2."""
-    invalid_ids = 0
+    sum_of_matching_ids = 0
 
-    for product_range in data:
-        ids = gen_range(product_range[0], product_range[1])
+    for min_id, max_id in data:
+        ids = generate_ids_in_range(min_id, max_id)
 
         for id in ids:
-            valid = investiate_id(id)
-            invalid_ids += int(id) if valid else 0
+            is_valid = has_repeating_pattern(id)
+            sum_of_matching_ids += int(id) if is_valid else 0
 
-    return str(invalid_ids)
+    return str(sum_of_matching_ids)
 
 
 def solve(puzzle_input):
