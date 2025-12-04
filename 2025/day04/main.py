@@ -19,30 +19,48 @@ def parse(puzzle_input: str):
     return rolls
 
 
+def count_adjacent(rolls, roll):
+    positions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (1, -1), (-1, 1)]
+    count = 0
+
+    for pos in positions:
+        new_pos = (roll[0] + pos[0], roll[1] + pos[1])
+
+        if new_pos in rolls:
+            count += 1
+
+    return count
+
+
 def part1(data: set[tuple[int, int]]):
     """Solve part 1."""
 
-    positions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (1, -1), (-1, 1)]
-
     valid_rolls = 0
     for key in data:
-        count = 0
-        for pos in positions:
-            new_pos = (key[0] + pos[0], key[1] + pos[1])
-
-            if new_pos in data:
-                count += 1
-                if count >= 4:
-                    break
-
+        count = count_adjacent(data, key)
         if count < 4:
-            valid_rolls += 2
+            valid_rolls += 1
 
     return str(valid_rolls)
 
 
-def part2(data):
+def part2(data: set):
     """Solve part 2."""
+    valid_rolls = 0
+    prev_len = 0
+    while len(data) != prev_len:
+        to_remove = []
+        for key in data:
+            count = count_adjacent(data, key)
+            if count < 4:
+                to_remove.append(key)
+
+        prev_len = len(data)
+        for key in to_remove:
+            valid_rolls += 1
+            data.remove(key)
+
+    return str(valid_rolls)
 
 
 def solve(puzzle_input):
