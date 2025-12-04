@@ -7,9 +7,38 @@ import sys
 def parse(puzzle_input: str):
     """Parse input."""
 
+    rolls = set()
 
-def part1(data):
+    lines = puzzle_input.splitlines()
+
+    for row, line in enumerate(lines):
+        for col, p in enumerate(line):
+            if p == "@":
+                rolls.add((int(row), int(col)))
+
+    return rolls
+
+
+def part1(data: set[tuple[int, int]]):
     """Solve part 1."""
+
+    positions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (1, -1), (-1, 1)]
+
+    valid_rolls = 0
+    for key in data:
+        count = 0
+        for pos in positions:
+            new_pos = (key[0] + pos[0], key[1] + pos[1])
+
+            if new_pos in data:
+                count += 1
+                if count >= 4:
+                    break
+
+        if count < 4:
+            valid_rolls += 2
+
+    return str(valid_rolls)
 
 
 def part2(data):
