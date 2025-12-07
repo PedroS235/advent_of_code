@@ -34,19 +34,18 @@ def part1(data):
     return str(total - 1)
 
 
-def find_timelines(data: list[list[str]], row: int, col: int):
+def find_timelines(data: list[list[str]], row: int, col: int, cache=dict()):
+    if (row, col) in cache:
+        return cache[(row, col)]
     if row == len(data):
         return 1  # set([col])
-
-    # while row < len(data) - 1 and data[row][col] != "^":
-    #     row += 1
 
     if data[row][col] != "^":
         return find_timelines(data, row + 1, col)
     right = find_timelines(data, row + 1, col + 1)
     left = find_timelines(data, row + 1, col - 1)
-    # return set.union(right, left)
-    return right + left
+    cache[(row, col)] = right + left
+    return cache[(row, col)]
 
 
 def part2(data):
